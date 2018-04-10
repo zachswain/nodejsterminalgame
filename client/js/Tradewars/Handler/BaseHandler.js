@@ -9,6 +9,12 @@
                     
                     handleCommand : function(command) {
                         console.log("Tradewars.Handler.BaseHandler " + command);
+                    },
+                    
+                    stop : function() {
+                        
+                        console.log("stopping");
+                        this.trigger("stop", this);
                     }
                 })
             }

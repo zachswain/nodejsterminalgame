@@ -44,6 +44,7 @@
                                                     user : results.user
                                                 });
                                                 self._terminal.resume();
+                                                self.stop();
                                                 //self.welcome();
                                             })
                                             .fail(function() {
@@ -68,9 +69,11 @@
                                             user : results.user
                                         });
                                         self._terminal.resume();
+                                        self.stop();
                                         // self.welcome();
                                     })
-                                    .fail(function() {
+                                    .fail(function(results) {
+                                        self.display("[[;#ff0000;#000000]Login failed: " + results.message + "]");
                                         self._terminal.resume();
                                         self.welcome();
                                     })
@@ -81,10 +84,6 @@
                         }, {
                             prompt : "> "
                         });    
-                    },
-                    
-                    stop : function() {
-                        
                     },
                     
                     cmd_create : function(name, password) {
@@ -110,7 +109,7 @@
                             if( results.success ) {
                                 promise.resolve({ user : results.user });
                             } else {
-                                promise.reject();
+                                promise.reject({ message : results.message });
                             }
                         });
                         

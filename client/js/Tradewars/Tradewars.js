@@ -97,13 +97,21 @@
                 
                 this._handlers.push(handler);
                 
-                this.listenTo(this._handlers[this._handlers.length-1], "display", this.onDisplay);
-                
-                this._handlers[this._handlers.length-1].start();
+                this.listenTo(handler, "display", this.onDisplay);
+                this.listenTo(handler, "stop", this.onStop); 
+                handler.start();
             },
             
             removeHandler : function(handler) {
-                    
+                this.stopListening(handler);
+                console.log("removing handler");
+                for( var i in this._handlers ) {
+                    if( this._handlers[i]===handler ) {
+                        this._handlers.splice(i, 1);
+                        console.log("handler removed");
+                        break;
+                    }
+                }
             },
 
             onDisplay : function(o) {
@@ -113,6 +121,10 @@
             
             onLogin : function(e) {
                 console.log("Tradewars onLogin");
+            },
+            
+            onStop : function(handler) {
+                this.removeHandler(handler);
             }
         } 
     });
