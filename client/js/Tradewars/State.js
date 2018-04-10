@@ -4,7 +4,8 @@
             State : {
                 Uninitialized : "uninitialized",
                 Initialized : "initialized",
-                Connected : "connected"
+                Connected : "connected",
+                LoggedIn : "loggedIn"
             }
         }
     })

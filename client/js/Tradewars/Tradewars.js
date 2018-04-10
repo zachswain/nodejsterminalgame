@@ -72,13 +72,21 @@
                     Tradewars.Client.connect();
                     return;
                 }
+                
+                if( newState==Tradewars.State.Connected ) {
+                    this.addHandler(Tradewars.Handler.WelcomeHandler);
+                }
+                
+                if( newState==Tradewars.State.LoggedIn ) {
+                    // TODO
+                    console.log("Tradewars line 82");
+                }
             },
             
             onConnected : function(e) {
                 // Initialized -> Connected
                 if( this.isState(Tradewars.State.Initialized) ) {
                     this.setState(Tradewars.State.Connected);
-                    this.addHandler(Tradewars.Handler.WelcomeHandler);
                 }
             },
             
@@ -120,7 +128,7 @@
             },
             
             onLogin : function(e) {
-                console.log("Tradewars onLogin");
+                this.setState(Tradewars.State.LoggedIn);
             },
             
             onStop : function(handler) {
