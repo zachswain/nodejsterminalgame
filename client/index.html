@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en" ng-app>
+<head>
+<title>Trade Wars</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/css/jquery.terminal.min.css"></link>
+<script src="socket.io/socket.io.js"></script>
+<script src="/js/jquery.min.js"></script>
+<script src="/js/jquery.terminal.min.js"></script>
+<script src="/js/underscore-min.js"></script>
+<script src="/js/backbone-min.js"></script>
+
+<script type="text/javascript" src="js/Tradewars/State.js"></script>
+<script type="text/javascript" src="js/Tradewars/Tradewars.js"></script>
+<script type="text/javascript" src="js/Tradewars/Client.js"></script>
+<script type="text/javascript" src="js/Tradewars/Handlers.js"></script>
+<script type="text/javascript" src="js/Tradewars/Handler/BaseHandler.js"></script>
+<script type="text/javascript" src="js/Tradewars/Handler/WelcomeHandler.js"></script>
+
+<script>
+$(document).ready(function() {
+  console.log("ready");
+
+  Tradewars.run();
+})
+</script>
+</head>
+<body>
+<div id="terminal"></div>
+</body>
+</html>

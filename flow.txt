@@ -1,0 +1,5 @@
+connect -> create | login
+create -> logged in
+login -> logged in
+
+logged in -> choose game

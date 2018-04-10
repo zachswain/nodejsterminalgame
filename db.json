@@ -1,0 +1,12 @@
+{
+  "uid": 1,
+  "games": [],
+  "users": [
+    {
+      "name": "jaede",
+      "password": "sha1$a2d460b6$1$bd1bd66ed255f19f20f94ee107ebcc420764e46e",
+      "id": 1
+    }
+  ],
+  "players": []
+}

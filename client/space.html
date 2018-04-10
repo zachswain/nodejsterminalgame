@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            #container {
+                width: 100%; 
+                height: 600px; 
+                border: solid 1px black; 
+                overflow: hidden;
+                display: block;
+                background: #000000;
+            }
+            #galaxy {
+                width: 800px; 
+                height: 800px;
+                position: relative;
+            }
+            .star {
+                position: absolute; 
+                width: 10px; 
+                height: 10px;
+                border-radius: 100%;
+                background: white;
+                
+                box-shadow:0 0 10px 2px white;
+                
+                transform: scale(1) translateZ(0);
+            }
+            .star:before {
+                content: '';
+                display: inline-block;
+                width: 28px;
+                margin-top: -13px;
+                margin-left: -13px;
+                height: 28px;
+                -moz-border-radius: 100%;
+                -webkit-border-radius: 100%;
+                border: solid 4px red;
+                box-shadow: 0px 0px 3px 1px red;
+            }
+            .graphPaper {
+                background:
+                    linear-gradient(-90deg, rgba(0,0,0,.05) 1px, transparent 1px),
+                    linear-gradient(rgba(0,0,0,.05) 1px, transparent 1px), 
+                    linear-gradient(-90deg, rgba(0, 0, 0, .04) 1px, transparent 1px),
+                    linear-gradient(rgba(0,0,0,.04) 1px, transparent 1px),
+                    linear-gradient(transparent 3px, #f2f2f2 3px, #f2f2f2 78px, transparent 78px),
+                    linear-gradient(-90deg, #aaa 1px, transparent 1px),
+                    linear-gradient(-90deg, transparent 3px, #f2f2f2 3px, #f2f2f2 78px, transparent 78px),
+                    linear-gradient(#aaa 1px, transparent 1px),
+                    #f2f2f2;
+                background-size:
+                    4px 4px,
+                    4px 4px,
+                    80px 80px,
+                    80px 80px,
+                    80px 80px,
+                    80px 80px,
+                    80px 80px,
+                    80px 80px;
+            }
+            .nebula:before {
+                content: '';
+                background-color: black;
+                background-image: url("/img/nebula.jpg");
+                background-size: 800px;
+                background-position: center;
+                background-repeat: no-repeat;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                right: 0;
+                position: absolute;
+                opacity: 0.3;
+            }
+        </style>
+        <script src="/js/jquery.min.js"></script>
+        <script src="/js/jquery.throttle-debounce.min.js"></script>
+        <script src="/js/interact.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                var width = $("#galaxy").width();
+                var height = $("#galaxy").height();
+                
+                for( var i=0 ; i<10 ; i++ ) {
+                    var star = $("<div id='star" + i + "' class='star'></div>");
+                    var top = Math.floor(Math.random() * (height-10)) + 5;
+                    var left = Math.floor(Math.random() * (width-10)) + 5;
+                    console.log(i + ", " + top + ", " + left);
+                    star.css({
+                        top : top,
+                        left : left
+                    });
+                    $("#galaxy").append(star);
+                }
+                
+                var scale = 1;
+                $("#galaxy").css({
+                    '-webkit-transform' : 'scale(' + scale + ')',
+                    '-moz-transform'    : 'scale(' + scale + ')',
+                    '-ms-transform'     : 'scale(' + scale + ')',
+                    '-o-transform'      : 'scale(' + scale + ')',
+                    'transform'         : 'scale(' + scale + ')',
+                    'transform-origin'  : 'top left'
+                });
+                $("#galaxy div").css({
+                    'transform' : 'scale(' + 1/scale + ')',
+                    'transform-origin'  : 'center center'
+                });
+                
+                $("#zoomOutBtn").click(function(e) {
+                    e.preventDefault();
+                    
+                    // translate the element
+                    changeScale(scale / 2);
+                });
+                
+                $("#zoomInBtn").click(function(e) {
+                    e.preventDefault();
+                    
+                    // translate the element
+                    changeScale(scale * 2);
+                });
+                
+                $("#container").on("mousewheel", function(e) {
+                    if( $(this)[0].hasAttribute("mousewheelHandling") ) return;
+                    
+                    $(this).attr("mousewheelHandling", 1);
+                    
+                    var deltaY;
+                   
+                    if (e.originalEvent.deltaY) { // FireFox 17+ (IE9+, Chrome 31+?)
+        				deltaY = e.originalEvent.deltaY;
+        			} else if (e.originalEvent.wheelDelta) {
+        				deltaY = -e.originalEvent.wheelDelta;
+        			}
+        			
+        			if( deltaY > 200 ) deltaY = 200;
+        			if( deltaY < -200 ) deltaY = -200;
+        			
+        			//changeScale(scale + (deltaY + (deltaY * Math.abs(scale) / 10)) / 100);
+        			
+        			if( deltaY > 0 ) {
+        			    changeScale(scale * 1.5, e.pageX - $(this).offset().left, e.pageY - $(this).offset().top);
+        			} else {
+        			    changeScale(scale / 1.5, e.pageX, e.pageY);
+        			}
+        			
+        			var self=this;
+        			setTimeout(function() { $(self).removeAttr("mousewheelHandling"); }, 200);
+                });
+                
+                function changeScale(newScale, x, y, delay) {
+                    if( newScale<1 ) {
+                        newScale = 1;
+                    }
+                    
+                    var targetX = parseFloat($("#galaxy").attr("data-x"));
+                    var targetY = parseFloat($("#galaxy").attr("data-y"));
+                    
+                    x = x || parseFloat($("#container").width())/2;
+                    y = y || parseFloat($("#container").height())/2;
+                    delay = delay || "1s";
+                    
+                    var xf = (x-targetX) * newScale / scale;
+                    var yf = (y-targetY) * newScale / scale;
+                    
+                    var dx = (x - xf);
+                    var dy = (y - yf);
+                    
+                    var transform = 'translateZ(0) scale(' + newScale + ') translate(' + dx/newScale + 'px,' + dy/newScale + 'px)';
+                    
+                    var galaxy = $("#galaxy")[0];
+                    galaxy.style.transition = delay;
+                    galaxy.style.webkitTransform =
+                    galaxy.style.transform = transform
+                         
+                    $("#galaxy").attr("data-x", dx);
+                    $("#galaxy").attr("data-y", dy);
+                    
+                    $("#galaxy div").each(function(index, item) {
+                        item.style.transition = delay;
+                        item.style.webkitTransform =
+                        item.style.transform = 'translateZ(0) scale(' + (1/newScale) + ')';
+                    });
+                    
+                    scale = newScale;
+                }
+                
+                interact("#galaxy")
+                    .draggable({
+                        inertia: true,
+                        // keep the element within the area of it's parent
+                        restrict : {
+                            restriction : "parent",
+                            endOnly : false
+                        },
+                        // enable autoScroll
+                        autoScroll: true,
+                        // call this function on every dragmove event
+                        onmove: function(event) {
+                            var target = event.target,
+                            targetWidth = target.getBoundingClientRect().width,
+                            targetHeight = target.getBoundingClientRect().height,
+                            containerWidth = $("#container").width(),
+                            containerHeight = $("#container").height();
+                            
+                            // keep the dragged position in the data-x/data-y attributes
+                            x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
+                            y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+                            
+                            /*
+                            if( targetWidth < containerWidth ) {
+                                if( x<0 ) x=0;
+                                if( y<0 ) y=0;
+                                
+                                if( x+targetWidth>containerWidth ) x=containerWidth-targetWidth;
+                                if( y+targetHeight>containerHeight ) y=containerHeight-targetHeight;
+                            } else {
+                                if( x>0 ) x=0;
+                                if( y>0 ) y=0;
+                                
+                                if( x+targetWidth<containerWidth ) x=containerWidth-targetWidth;
+                                if( y+targetHeight<containerHeight ) y=containerHeight-targetHeight;
+                            }
+                            */
+                            
+                        
+                            // translate the element
+                            target.style.transition = 'none';
+                            target.style.webkitTransform =
+                            target.style.transform =
+                              'scale(' + scale + ') translate(' + (x/scale) + 'px, ' + (y/scale) + 'px)';
+                        
+                            // update the posiion attributes
+                            target.setAttribute('data-x', x);
+                            target.setAttribute('data-y', y);
+                        },
+                        // call this function on every dragend event
+                        onend: function (event) {
+                          
+                        }
+                    })
+                    .gesturable({
+                        onstart : function(e) {
+                            console.log("gesture start");
+                        },
+                        onmove : function(e) {
+                            console.log(scale * (1+e.ds));
+                            changeScale(scale * (1 + e.ds), e.pageX - $("#container").offset().left, e.pageY - $("#container").offset().top, "0s");
+                        }
+                    })
+            });
+        </script>
+        
+    </head>
+    <body>
+        <div id="container" style="">
+            <div id="galaxy" class="nebula" data-x=0 data-y=0>
+            </div>
+        </div>
+        <div>
+            <button id="zoomInBtn">Zoom In</button>
+            <button id="zoomOutBtn">Zoom Out</button>
+        </div>
+    </body>
+</html>
